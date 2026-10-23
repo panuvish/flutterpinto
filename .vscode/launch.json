@@ -1,0 +1,110 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Local Flavor (Android)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterSdkPath": ".fvm/flutter_sdk",
+            "args": [
+                "--flavor",
+                "local",
+                "--dart-define=flavor=local"
+            ]
+        },
+        {
+            "name": "Run Dev Flavor (Android)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterSdkPath": ".fvm/flutter_sdk",
+            "args": [
+                "--flavor",
+                "dev",
+                "--dart-define=flavor=dev"
+            ]
+        },
+        {
+            "name": "Run Prod Flavor (Android)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterSdkPath": ".fvm/flutter_sdk",
+            "args": [
+                "--flavor",
+                "prod",
+                "--dart-define=flavor=prod"
+            ]
+        },
+        {
+            "name": "Run Local Flavor (iOS)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterSdkPath": ".fvm/flutter_sdk",
+            "args": [
+                "--flavor",
+                "local",
+                "--dart-define=flavor=local"
+            ]
+        },
+        {
+            "name": "Run Dev Flavor (iOS)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterSdkPath": ".fvm/flutter_sdk",
+            "args": [
+                "--flavor",
+                "dev",
+                "--dart-define=flavor=dev"
+            ]
+        },
+        {
+            "name": "Run Prod Flavor (iOS)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterSdkPath": ".fvm/flutter_sdk",
+            "args": [
+                "--flavor",
+                "prod",
+                "--dart-define=flavor=prod"
+            ]
+        },
+        {
+            "name": "Run Local Flavor (Windows)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterSdkPath": ".fvm/flutter_sdk",
+            "deviceId": "windows",
+            "args": [
+                "--dart-define=flavor=local"
+            ]
+        },
+        {
+            "name": "Run Dev Flavor (Windows)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterSdkPath": ".fvm/flutter_sdk",
+            "deviceId": "windows",
+            "args": [
+                "--dart-define=flavor=dev"
+            ]
+        },
+        {
+            "name": "Run Prod Flavor (Windows)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterSdkPath": ".fvm/flutter_sdk",
+            "deviceId": "windows",
+            "args": [
+                "--dart-define=flavor=prod"
+            ]
+        }
+    ]
+}

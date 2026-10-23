@@ -1,0 +1,138 @@
+default_platform(:android)
+
+platform :android do
+  ############################################################
+  # 🔧 CONFIG
+  ############################################################
+  PACKAGE_NAMES = {
+    "local" => "com.fldp.mobileApp.local",
+    "dev"   => "com.fldp.mobileApp.dev",
+    "prod"  => "com.fldp.mobileApp"
+  }
+
+  TRACKS = {
+    "local" => "beta",
+    "dev"   => "beta",
+    "prod"  => "production"
+  }
+
+  JSON_KEYS = {
+    "dev"   => "../service-account-google-for-upload/service-account-dev.json",
+    "prod"  => "../service-account-google-for-upload/service-account-prod.json"
+  }
+
+  DEFAULT_TARGET_FILE  = "lib/main.dart" # ตาม launch.json ที่ให้มา
+  CHANGELOGS_DIR       = "fastlane/changelogs" # วางไฟล์เช่น fastlane/changelogs/dev.txt
+
+  ############################################################
+  # 🔎 Helpers
+  ############################################################
+def find_aab_path(flavor)
+  candidates = Dir[
+    "../../build/app/outputs/bundle/#{flavor}Release/*.aab",
+    "../app/build/outputs/bundle/#{flavor}Release/*.aab",
+    "build/app/outputs/bundle/#{flavor}Release/*.aab",
+    "app/build/outputs/bundle/#{flavor}Release/*.aab"
+  ].flatten.compact
+
+  UI.message("📂 CWD: #{Dir.pwd}")
+  UI.message("🔍 Found AABs: #{candidates}") unless candidates.empty?
+  UI.user_error!("❌ ไม่พบไฟล์ AAB ใน paths ที่ลองค้นหา") if candidates.empty?
+
+  # >>> เพิ่มบรรทัดนี้ให้เป็น absolute path
+  File.expand_path(candidates.max_by { |f| File.mtime(f) })
+end
+
+  def load_changelog(flavor)
+    # อ่าน changelog ถ้ามีไฟล์ เช่น fastlane/changelogs/dev.txt
+    path = File.join(CHANGELOGS_DIR, "#{flavor}.txt")
+    File.exist?(path) ? File.read(path) : nil
+  end
+
+  ############################################################
+  # 🏗️ BUILD AAB (Flutter + FVM)
+  ############################################################
+  desc "Build Flutter AAB ตาม flavor"
+  lane :build_flutter do |options|
+    flavor      = (options[:flavor] || "dev").downcase
+    target_file = options[:target] || DEFAULT_TARGET_FILE
+    dart_define = options[:dart_define] || "flavor=#{flavor}"
+    build_num   = options[:build_number] # ใส่จาก CI ได้ เช่น build_number: ENV['BUILD_NUMBER']
+
+    sh "fvm flutter --version"
+    # ไม่บังคับ clean เสมอไป (เร็วขึ้น) แต่ถ้าอยาก clean, ปลดคอมเมนต์บรรทัดล่าง
+    # sh "fvm flutter clean"
+    sh "fvm flutter pub get"
+
+    cmd = [
+      "fvm flutter build appbundle --release",
+      "--flavor #{flavor}",
+      "--dart-define=#{dart_define}",
+      "-t #{target_file}",
+      "-v"
+    ]
+    cmd << "--build-number #{build_num}" if build_num # คุม versionCode จาก CI ได้
+    sh cmd.join(" ")
+
+    aab_path = find_aab_path(flavor)
+    UI.message("✅ AAB: #{aab_path}")
+
+    Actions.lane_context[:AAB_PATH] = aab_path
+    Actions.lane_context[:FLAVOR]   = flavor
+  end
+
+  ############################################################
+  # 🚀 UPLOAD AAB → GOOGLE PLAY
+  ############################################################
+  desc "อัปโหลด AAB ไป Google Play ตาม flavor (override track ได้)"
+  lane :upload_playstore do |options|
+  flavor = (options[:flavor] || Actions.lane_context[:FLAVOR] || "dev").downcase
+  aab    = options[:aab] || Actions.lane_context[:AAB_PATH]
+
+  aab = File.expand_path(aab)
+  json_key_path = ENV["GOOGLE_PLAY_JSON"] || File.expand_path(JSON_KEYS[flavor] || JSON_KEYS["dev"])
+
+  UI.user_error!("❌ ไม่พบไฟล์ AAB ที่ #{aab}") unless File.exist?(aab)
+  package = PACKAGE_NAMES[flavor] or UI.user_error!("❌ ยังไม่ได้แม็พ PACKAGE_NAMES สำหรับ flavor=#{flavor}")
+  track   = (options[:track] || TRACKS[flavor])
+
+  UI.message("🏷️ Flavor: #{flavor}")
+  UI.message("📦 Package: #{package}")
+  UI.message("🛤️ Track: #{track}")
+  UI.message("📁 AAB: #{aab}")
+  UI.message("🔑 JSON Key: #{json_key_path}")
+
+  # ❌ อย่าส่ง 'changelog:' หรือ 'changelogs:' ถ้า fastlane เวอร์ชันนี้ไม่รองรับ
+supply(
+  aab: aab,
+  json_key: json_key_path,
+  package_name: package,
+  track: track,
+  release_status: "draft",      # 👈 เพิ่มบรรทัดนี้
+  skip_upload_images: true,
+  skip_upload_screenshots: true,
+  skip_upload_metadata: true,
+  skip_upload_changelogs: false
+)
+end
+
+  ############################################################
+  # ⚙️ DEPLOY (Build + Upload)
+  ############################################################
+  desc "Build และ Upload Google Play (ระบุ flavor) (override track/target/build_number ได้)"
+  lane :deploy do |options|
+    flavor = (options[:flavor] || "dev").downcase
+
+    build_flutter(
+      flavor: flavor,
+      target: options[:target],           # ถ้าอยาก -t ไฟล์อื่นก็ส่งมา
+      dart_define: options[:dart_define], # ใส่เพิ่มได้ เช่น API_URL=...
+      build_number: options[:build_number]
+    )
+
+    upload_playstore(
+      flavor: flavor,
+      track: options[:track] # อยากปล่อย dev → closed ก็ทำได้: fastlane deploy flavor:dev track:closed
+    )
+  end
+end

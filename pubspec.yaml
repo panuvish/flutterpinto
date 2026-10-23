@@ -1,0 +1,72 @@
+name: mobile_app_standard
+description: "A new Flutter project."
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
+
+flavors:
+    local:
+      app:
+        name: "mobile_app_standard Local"
+        identifier: com.fldp.mobileApp.local
+      android:
+        applicationId: com.fldp.mobileApp.local
+    dev:
+      app:
+        name: "mobile_app_standard Dev"
+        identifier: com.fldp.mobileApp.dev
+      android:
+        applicationId: com.fldp.mobileApp.dev
+    prod:
+      app:
+        name: "mobile_app_standard"
+        identifier: com.fldp.mobileApp
+      android:
+        applicationId: com.fldp.mobileApp
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  drift: ^2.23.1
+  drift_flutter: ^0.2.5
+  cupertino_icons: ^1.0.8
+  path_provider: ^2.1.5
+  get_it: ^8.0.3
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.7
+  intl: ^0.20.2
+  web_socket_channel: ^3.0.1
+  flutter_dotenv: ^6.0.0
+  auto_route: ^10.1.0+1
+  flutter_tailwind_colors: ^0.0.3
+  toastification: ^3.0.2
+  dio: ^5.8.0+1
+  dropdown_button2: ^2.3.9
+  skeletonizer: ^2.1.2
+  flutter_hooks: ^0.21.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  shared_preferences: ^2.5.6
+  fl_chart: ^1.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+  drift_dev: ^2.23.1
+  build_runner: ^2.4.14
+  auto_route_generator: ^10.0.1
+
+flutter:
+
+  generate: true
+  uses-material-design: true
+
+  assets:
+    - .env

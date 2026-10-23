@@ -1,0 +1,14 @@
+{
+  "editor.formatOnSave": true,
+  "[dart]": {
+    "editor.formatOnSave": true
+  },
+  "dart.flutterSdkPath": ".fvm/versions/3.38.9",
+  "search.exclude": {
+    "**/.fvm": true
+  },
+  "files.watcherExclude": {
+    "**/.fvm": true
+  },
+  "java.configuration.updateBuildConfiguration": "disabled"
+}
